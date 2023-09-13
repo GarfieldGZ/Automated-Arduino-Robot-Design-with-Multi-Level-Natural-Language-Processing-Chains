@@ -1,0 +1,286 @@
+Description:
+a basic line follower robot with simple obstacle avoidance ability
+
+Preliminarydesign:
+Foundational Robot Type: The foundational robot type for this design is a wheeled mobile robot.
+
+Core Functional Modules:
+
+1. Line Follower Sensor:
+The line follower sensor is the primary module of our robot. It detects the presence of a line and guides the robot to follow that line. We will use infrared sensors to detect the line. The sensors will be positioned at the front of the robot and will be able to detect a black line on a light-colored surface.
+
+2. Obstacle Avoidance Sensor:
+The obstacle avoidance sensor is a secondary module that detects obstacles in front of the robot and alerts it to take evasive action. We will use an ultrasonic sensor to detect obstacles. The sensor will be positioned at the front of the robot and will send out sound waves to detect objects in its path.
+
+3. Motor Controller:
+The motor controller is the module that controls the motors of the robot. We will use a motor driver module to control the speed and direction of the motors. The motor driver will be connected to the Arduino board and will receive commands from it to control the motor.
+
+4. Power Source:
+The power source is the module that provides energy to the robot. We will use a rechargeable battery to power the robot. The battery will be connected to the Arduino board through a voltage regulator and will provide a stable source of power to the robot.
+
+Reasoning and Principles:
+
+1. Line Follower Sensor:
+The line follower sensor is the primary module of our robot because it guides the robot to follow the line. We are using infrared sensors because they are cheap, easy to find, and have a good sensitivity to the color of the line we want to follow.
+
+2. Obstacle Avoidance Sensor:
+The obstacle avoidance sensor is a secondary module that detects obstacles in front of the robot and alerts it to take evasive action. We are using an ultrasonic sensor because it provides a good range of detection and is reliable in detecting obstacles.
+
+3. Motor Controller:
+The motor controller is the module that controls the motors of the robot. We are using a motor driver module because it provides a high level of control over the motors and ensures that they operate smoothly and efficiently.
+
+4. Power Source:
+The power source is the module that provides energy to the robot. We are using a rechargeable battery because it is portable, easy to recharge, and provides a stable source of power to the robot.
+
+Overall, this arduino robot design outline is focused on simplicity and usability. It provides the user with basic line following and obstacle avoidance capabilities while maintaining a low cost and ease of use. The design is practical and the selected modules are reliable and efficient.
+
+Hardwaredesign:
+Physical Structure: 
+Our wheeled mobile robot will have a rectangular base made of a sturdy and lightweight material like aluminum or carbon fiber. The dimensions of the base will be 20cm x 15cm to ensure that it can navigate tight spaces. The robot will have two wheels at the rear and one swivel wheel at the front for stability.
+
+Components: 
+
+1. Line Follower Sensor:
+We will use three infrared sensors mounted in a line on the front of the robot to detect the line. The sensors will be spaced 1 cm apart to ensure accurate detection. The sensors will be connected to digital pins 2, 3, and 4 on the Arduino board.
+
+2. Obstacle Avoidance Sensor:
+We will use an ultrasonic sensor mounted at the front of the robot to detect obstacles. The sensor will be connected to digital pin 5 on the Arduino board.
+
+3. Motor Controller:
+We will use an L293D motor driver module to control the speed and direction of the motors. The motor driver will be connected to pin 9 and pin 10 on the Arduino board. 
+
+4. Power Source:
+We will use a 7.4V rechargeable lithium-ion battery that is connected to the Arduino board through a voltage regulator. The voltage regulator will ensure that a stable voltage of 5V is provided to the Arduino board and sensors.
+
+Connections: 
+
+1. Line Follower Sensor:
+The infrared sensors will be connected to digital pins 2, 3, and 4 on the Arduino board. The sensors will be connected using jumper wires.
+
+2. Obstacle Avoidance Sensor:
+The ultrasonic sensor will be connected to digital pin 5 on the Arduino board using a jumper wire.
+
+3. Motor Controller:
+The L293D motor driver module will be connected to pin 9 and pin 10 on the Arduino board using jumper wires. The two motors will be connected to the motor driver module using female-to-female jumper wires.
+
+4. Power Source:
+The battery will be connected to the Arduino board through a voltage regulator. The voltage regulator will be connected to the Vin pin and GND pin on the Arduino board using jumper wires. 
+
+In conclusion, this hardware design for the arduino robot is designed to provide a practical and cost-effective solution for line following and obstacle avoidance. The hardware components are reliable, efficient, and easily available in the market. The robot's physical structure is compact and stable and will be able to navigate tight spaces. The connections are well-organized and secured for a stable and reliable operation.
+
+Softwaredesign:
+Line Follower Sensor Code:
+
+#include <QTRSensors.h>
+
+QTRSensorRC qtrrc((unsigned char[]) {2, 3, 4}, 3);
+unsigned int sensors[3];
+
+void setup() {
+  Serial.begin(9600);
+  qtrrc.calibrate();
+}
+
+void loop() {
+  qtrrc.read(sensors);
+  int position = qtrrc.readLine(sensors);
+  Serial.println(position);
+}
+
+Obstacle Avoidance Sensor Code:
+
+#include <NewPing.h>
+
+#define TRIGGER_PIN 5
+#define ECHO_PIN 5
+#define MAX_DISTANCE 200
+
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  delay(50);
+  unsigned int distance = sonar.ping_cm();
+  if (distance <= 20) {
+    Serial.println("Obstacle detected!");
+  }
+}
+
+Motor Controller Code:
+
+#include <AFMotor.h>
+
+AF_DCMotor motor1(1);
+AF_DCMotor motor2(2);
+
+void setup() {
+}
+
+void loop() {
+  motor1.setSpeed(255);
+  motor2.setSpeed(255);
+  motor1.run(FORWARD);
+  motor2.run(FORWARD);
+}
+
+Core Logic Controller Code:
+
+#include <QTRSensors.h>
+#include <NewPing.h>
+#include <AFMotor.h>
+
+QTRSensorRC qtrrc((unsigned char[]) {2, 3, 4}, 3);
+unsigned int sensors[3];
+
+#define TRIGGER_PIN 5
+#define ECHO_PIN 5
+#define MAX_DISTANCE 200
+
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
+
+AF_DCMotor motor1(1);
+AF_DCMotor motor2(2);
+
+void setup() {
+  Serial.begin(9600);
+  qtrrc.calibrate();
+}
+
+void loop() {
+  qtrrc.read(sensors);
+  int position = qtrrc.readLine(sensors);
+  unsigned int distance = sonar.ping_cm();
+
+  if (position < 1000) {
+    motor1.setSpeed(255);
+    motor2.setSpeed(255);
+    motor1.run(BACKWARD);
+    motor2.run(BACKWARD);
+  } else {
+    motor1.setSpeed(255);
+    motor2.setSpeed(255);
+    motor1.run(FORWARD);
+    motor2.run(FORWARD);
+  }
+
+  if (distance <= 20) {
+    motor1.setSpeed(0);
+    motor2.setSpeed(0);
+    Serial.println("Obstacle detected!");
+  }
+
+  Serial.println(position);
+} 
+
+This arduino robot software design integrates the three functional modules - the line follower sensor, obstacle avoidance sensor, and motor controller - into a single core logic controller. The line follower sensor code uses QTRSensors library to detect the line and guides the robot to follow it. The obstacle avoidance sensor code utilizes NewPing library to detect obstacles in front of the robot and alert it to take evasive action. The motor controller code uses AFMotor library to control the speed and direction of the motors.
+
+The core logic controller code reads data from the line follower and obstacle avoidance sensors and makes decisions based on them. The robot moves forward if no line or obstacle is detected, moves backward if the line is lost, and stops if an obstacle is detected. The arduino code is designed to be simple, efficient, and easily configurable. It can run on the arduino processors with all the required libraries imported.
+
+Designreview:
+Overall, the preliminary design, hardware design, and software design of the arduino robot seem feasible and practical. However, there are a few critical concerns that need to be addressed.
+
+Feasibility:
+The design seems feasible in terms of the chosen modules and connections. However, it would be better to perform a feasibility study to ensure that the robot components can work together efficiently.
+
+Reliability:
+The reliability of the robot in real-world scenarios needs to be tested to ensure that it can perform consistently and accurately.
+
+Safety:
+The safety of the robot needs to be considered. It is important to ensure that the robot does not cause harm to humans or itself while operating.
+
+Design Flaws:
+The robot's design has a few flaws that need to be addressed. Firstly, the obstacle avoidance sensor is the same as the line follower sensor. This means that the robot cannot detect obstacles if it's following a line. Secondly, the robot only moves in a straight line. It would be better to add a turning mechanism to navigate curved paths.
+
+Improvements:
+To address the design flaws, a new obstacle avoidance sensor should be added that works independently of the line follower sensor. Additionally, a turning mechanism can be added to the robot to navigate curved paths.
+
+In terms of the arduino code, the code seems efficient and easily configurable. However, the motor speed and direction should be adjusted based on the distance from the obstacle to ensure that the robot can avoid it effectively.
+
+Overall, the arduino robot design has potential, but it requires further testing and improvements to ensure its feasibility, reliability, and safety in real-world scenarios.
+
+Userinstruction:
+Step 1: Purchase the Required Materials
+- Arduino board
+- Infrared sensors
+- Ultrasonic sensor
+- L293D motor driver module
+- 7.4V rechargeable lithium-ion battery
+- Jumper wires
+- AF Motor library
+- NewPing library 
+- QTRSensors library
+
+Step 2: Process Physical Pieces
+- Create a rectangular base for the robot with a sturdy and lightweight material such as aluminum or carbon fiber.
+- Attach two wheels at the rear and one swivel wheel at the front for stability.
+
+Step 3: Assemble the Mechanical Structure and Install Electronic Components
+- Connect the infrared sensors to digital pins 2, 3, and 4 on the Arduino board using jumper wires.
+- Connect the ultrasonic sensor to digital pin 5 on the Arduino board using a jumper wire.
+- Connect the L293D motor driver module to pin 9 and pin 10 on the Arduino board using jumper wires.
+- Connect the two motors to the motor driver module using female-to-female jumper wires.
+- Connect the battery to the voltage regulator and then to the Vin and GND pins on the Arduino board using jumper wires.
+
+Step 4: Compile and Import the Arduino Code
+- Import the AF Motor library, NewPing library, and QTRSensors library into your Arduino IDE software.
+- Copy and paste the Line Follower Sensor Code, Obstacle Avoidance Sensor Code, Motor Controller Code, and Core Logic Controller Code into separate tabs in the Arduino IDE.
+- Upload the code to the Arduino board.
+
+Step 5: Initiate and Operate the Robot
+- Turn on the robot and place it on a surface.
+- The robot will follow a line detected by the infrared sensors if it is present.
+- If an obstacle is detected by the ultrasonic sensor, the robot will stop and print "Obstacle detected!" in the serial monitor.
+- The robot will move forward if no obstacle or line is detected.
+- If the line is lost, the robot will move backward.
+- Monitor the serial monitor to follow the robot's actions and make changes to the code as necessary.
+
+Step 6: Safety Guidelines
+- Always operate the robot in a safe environment free from hazards and obstacles.
+- Do not touch the robot or its components while it is in operation.
+- Keep your distance from the robot to avoid any accidents or injuries.
+- Use caution when modifying the robot's design or code to ensure safety.
+
+Failureanalysis:
+1. Scenario: The robot encounters a steep incline and is unable to climb it.
+Cause: The motors are not powerful enough to climb steep inclines.
+Solution: Upgrade the motors to more powerful ones that can handle steep inclines.
+
+2. Scenario: The robot encounters a slippery surface and loses traction.
+Cause: The wheels do not have enough grip on the surface.
+Solution: Add rubber treads to the wheels to improve traction on slippery surfaces.
+
+3. Scenario: The robot encounters a narrow gap between two obstacles and gets stuck.
+Cause: The robot is too wide to fit through the gap.
+Solution: Redesign the robot to be narrower or add a mechanism to adjust the width of the robot.
+
+4. Scenario: The robot encounters a sharp turn and tips over.
+Cause: The robot's center of gravity is too high.
+Solution: Lower the center of gravity by redesigning the physical structure of the robot.
+
+5. Scenario: The robot's battery runs out of power in the middle of a task.
+Cause: The battery capacity is not sufficient for the robot's usage.
+Solution: Upgrade to a higher capacity battery or add a mechanism to recharge the battery during operation.
+
+6. Scenario: The robot's motor driver module overheats and shuts down.
+Cause: The motor driver module is not designed to handle the current load of the motors.
+Solution: Upgrade to a motor driver module that can handle the current load of the motors.
+
+7. Scenario: The robot's ultrasonic sensor malfunctions and gives false readings.
+Cause: The ultrasonic sensor is not calibrated properly or is damaged.
+Solution: Calibrate the sensor properly or replace it with a new one.
+
+8. Scenario: The robot's line follower sensor fails to detect the line.
+Cause: The infrared sensors are not positioned correctly or are damaged.
+Solution: Reposition the sensors or replace them with new ones.
+
+9. Scenario: The robot's physical structure is not sturdy enough and breaks under stress.
+Cause: The material used for the physical structure is not strong enough.
+Solution: Use a stronger and more durable material for the physical structure.
+
+10. Scenario: The robot's arduino processor malfunctions and stops responding.
+Cause: The arduino processor is damaged or overloaded.
+Solution: Replace the arduino processor or optimize the code to reduce the processor load.
+
